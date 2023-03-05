@@ -1,34 +1,33 @@
 class MOO():
-	def __init__(self, dial_count: int, dial_size: int, max_attempts: int):
+	def __init__(self, dial_count: int, dial_size: int, max_tries: int):
 		self.dial_count = dial_count
 		self.dial_size = dial_size
 		
-		self.max_attempts = max_attempts
-		self.attempt_history = []
+		self.max_tries = max_tries
+		self.tries_history = []
 		
 		self.code_min = int(str(1)*dial_count)
 		self.code_max = int(str(dial_size)*dial_count)
 		self.dwrf_key = [0]*dial_count
 		self.lffs_key = [0]*(dial_size + 1)
 	
+	def validate_code(self, moo_code: int):
+		if self.code_max < moo_code or moo_code < self.code_min:
+			raise ValueError(f"Code must have exactly {self.dial_count} digits.")
+		dial_values = [int(dial_val) for dial_val in str(moo_code)]
+		if max(dial_values) > self.dial_size or min(dial_values) < 1:
+			raise ValueError(f"One or more dials are out of range ({1}..{self.dial_size}).")
+		return dial_values
+	
 	def set_code(self, moo_code: int):
 		try:
-			if self.code_max < moo_code or moo_code < self.code_min:
-				raise ValueError(f"Code has exactly {self.dial_count} digits.")
-			
-			self.dwrf_key = [int(d) for d in str(moo_code)]
-			
-			if max(self.dwrf_key) > self.dial_size or min(self.dwrf_key) < 1:
-				raise ValueError(f"Dial out of range {1}..{self.dial_size}.")
-			
+			self.dwrf_key = self.validate_code(moo_code)
 			for d in self.dwrf_key:
 				self.lffs_key[d] = 1
-		
 		except ValueError as ve:
 			print(f"Failed to set MOO code to {moo_code}: {ve}")
 	
-	
-	def calc_remaining_attempts(self):
+	def calc_remaining_tries(self):
 		return self.max_attempts - len(self.attempt_history)
 	
 	def calc_dwrf(self, dial_values: [int]):
@@ -46,19 +45,23 @@ class MOO():
 			lffs_key[dial_val] = 0
 		return lffs
 	
-	def attempt(self, answer: int):
-		dial_values = [int(a) for a in str(answer)]
-		dwrf = self.calc_dwrf(dial_values)
-		lffs = self.calc_lffs(dial_values)
-		self.attempt_history.append(f"TRY:{answer} | D/WRF:{dwrf} | LF/FS:{lffs}")
-		if self.max_attempts != 0 and self.calc_remaining_attempts() <= 0:
-			return None
-		return dwrf, lffs
+	def try_code(self, moo_code: int):
+		try:
+			dial_values = self.validate_code(moo_code)
+			dwrf = self.calc_dwrf(dial_values)
+			lffs = self.calc_lffs(dial_values)
+			self.tries_history.append(f"TRY:{moo_code} | D/WRF:{dwrf} | LF/FS:{lffs}")
+			if self.max_tries != 0 and self.calc_remaining_tries() <= 0:
+				return None
+			return dwrf, lffs
+		except ValueError as ve:
+			print(f"{moo_code} is an invalid MOO code: {ve}")
 
 def main():
 	moo = MOO(4, 6, 8)
 	answer = 1349
-	moo.set_code(answer)
+	moo.set_code(1425)
+	moo.try_code(answer)
 	#moo.attempt(answer)
 	#print(moo.attempt_history)
 	
