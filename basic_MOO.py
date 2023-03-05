@@ -16,11 +16,13 @@ def main():
 			else:
 				print("ACCESS GRANTED")
 				break
-			print(f"{basic_moo.tries_history}")
+			print(basic_moo.attempts_str())
 		except ValueError:
 			continue
 		except Exception as ex:
 			print(ex)
+	
+	print(basic_moo)
 
 if __name__ == '__main__':
 	main()

@@ -6,10 +6,27 @@ class MOO():
 		self.max_tries = max_tries
 		self.tries_history = []
 		
+		self.code = 0
 		self.code_min = int(str(1)*dial_count)
 		self.code_max = int(str(dial_size)*dial_count)
 		self.dwrf_key = [0]*dial_count
 		self.lffs_key = [0]*(dial_size + 1)
+	
+	def configs_str(self):
+		configs_str = f"- CONFIGS \n"
+		configs_str = f"{configs_str}  | DIALS:\t{self.dial_count}x(1..{self.dial_size})\n"
+		configs_str = f"{configs_str}  | CODE:\t{self.code}\n"
+		return configs_str
+	
+	def attempts_str(self):
+		attempts_str = "".join([f"  | TRY:{a['TRY']} --> [ D/WRF:{a['D/WRF']} | LF/FS:{a['LF/FS']} ]\n" for a in self.tries_history])
+		attempts_str = f"- ATTEMPTS \n{attempts_str}"
+		attempts_str = f"{attempts_str}  | ATTEMPTS REMAINING:\t{self.calc_remaining_tries()}\n"
+		return attempts_str
+	
+	def __str__(self):
+		moo_str = f"{self.configs_str()}{self.attempts_str()}"
+		return moo_str
 	
 	def validate_code(self, moo_code: int):
 		if self.code_max < moo_code or moo_code < self.code_min:
@@ -24,6 +41,7 @@ class MOO():
 			self.dwrf_key = self.validate_code(moo_code)
 			for d in self.dwrf_key:
 				self.lffs_key[d] = 1
+			self.code = moo_code
 		except ValueError as ve:
 			print(f"Failed to set MOO code to {moo_code}: {ve}")
 			raise ve
@@ -44,14 +62,14 @@ class MOO():
 		for dial_val in dial_values:
 			lffs += lffs_key[dial_val]
 			lffs_key[dial_val] = 0
-		return lffs
+		return lffs if lffs >= 0 else 0
 	
 	def try_code(self, moo_code: int):
 		try:
 			dial_values = self.validate_code(moo_code)
 			dwrf = self.calc_dwrf(dial_values)
 			lffs = self.calc_lffs(dial_values)
-			self.tries_history.append(f"TRY:{moo_code} | D/WRF:{dwrf} | LF/FS:{lffs}")
+			self.tries_history.append({'TRY':moo_code, 'D/WRF':dwrf, 'LF/FS':lffs})
 			if self.max_tries != 0 and self.calc_remaining_tries() <= 0:
 				return None
 			return dwrf == self.dial_count
@@ -61,11 +79,10 @@ class MOO():
 
 def main():
 	moo = MOO(4, 6, 8)
-	answer = 1349
+	answer = 1345
 	moo.set_code(1425)
 	moo.try_code(answer)
-	#moo.attempt(answer)
-	print(moo.tries_history)
+	print(moo)
 	
 if __name__ == '__main__':
 	main()
