@@ -26,9 +26,10 @@ class MOO():
 				self.lffs_key[d] = 1
 		except ValueError as ve:
 			print(f"Failed to set MOO code to {moo_code}: {ve}")
+			raise ve
 	
 	def calc_remaining_tries(self):
-		return self.max_attempts - len(self.attempt_history)
+		return self.max_tries - len(self.tries_history)
 	
 	def calc_dwrf(self, dial_values: [int]):
 		dwrf = 0
@@ -53,9 +54,10 @@ class MOO():
 			self.tries_history.append(f"TRY:{moo_code} | D/WRF:{dwrf} | LF/FS:{lffs}")
 			if self.max_tries != 0 and self.calc_remaining_tries() <= 0:
 				return None
-			return dwrf, lffs
+			return dwrf == self.dial_count
 		except ValueError as ve:
 			print(f"{moo_code} is an invalid MOO code: {ve}")
+			raise ve
 
 def main():
 	moo = MOO(4, 6, 8)
@@ -63,7 +65,7 @@ def main():
 	moo.set_code(1425)
 	moo.try_code(answer)
 	#moo.attempt(answer)
-	#print(moo.attempt_history)
+	print(moo.tries_history)
 	
 if __name__ == '__main__':
 	main()
