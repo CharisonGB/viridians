@@ -22,7 +22,7 @@ def main():
 		basic_moo = MOO(args['dial_count'], args['dial_size'], args['max_tries'])
 		basic_moo.set_code(args['code'])
 	except ValueError as ve:
-		print(f"Failed to configure MOO.\n{ve}\nExiting.")
+		print(f"Failed to configure MOO.\n{ve}\nExiting...")
 		exit(1)
 	
 	code_correct = False
@@ -39,6 +39,9 @@ def main():
 		except ValueError as ve:
 			print(f"{ve}\n")
 			continue
+		except KeyboardInterrupt:
+			print("\nExiting...")
+			exit(1)
 		except Exception as ex:
 			print(ex)
 	
