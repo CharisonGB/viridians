@@ -1,6 +1,6 @@
 import sys
 import argparse
-from MOO import MOO
+from VMOO import MOO
 
 def get_basic_MOO_parser():
 	parser = argparse.ArgumentParser(usage="basic_MOO.py <code> [-c|--dial-count] [-s|--dial-size] [-t|--max-tries]",

@@ -1,5 +1,7 @@
+# Virtualized Mechanically Operated Opener
 if __name__ == '__main__':
-	pass
+	print("Virtualized Mechanically Operated Opener (VMOO)")
+	exit(0)
 
 class MOO():
 	def __init__(self, dial_count: int, dial_size: int, max_tries: int):
