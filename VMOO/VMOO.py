@@ -6,7 +6,8 @@ if __name__ == '__main__':
 class MOO():
 	def __init__(self, dial_count: int, dial_size: int, max_tries: int):
 		self.dial_count = dial_count
-		self.dial_size = dial_size if 0 < dial_size <= 9 else 9
+		self.dial_max = dial_size
+		self.dial_width = (dial_size // 10) + 1
 		
 		self.max_tries = max_tries
 		self.tries_history = []
@@ -19,7 +20,7 @@ class MOO():
 	
 	def configs_str(self):
 		configs_str = f"- CONFIGS \n"
-		configs_str = f"{configs_str}  | DIALS:\t{self.dial_count}x(1..{self.dial_size})\n"
+		configs_str = f"{configs_str}  | DIALS:\t{self.dial_count}x(1..{self.dial_max})\n"
 		configs_str = f"{configs_str}  | CODE:\t{self.code}\n"
 		return configs_str
 	
@@ -33,17 +34,18 @@ class MOO():
 		moo_str = f"{self.configs_str()}{self.attempts_str()}"
 		return moo_str
 	
-	def validate_code(self, moo_code: int):
+	def parse_code(self, moo_code: int):
 		if self.code_max < moo_code or moo_code < self.code_min:
 			raise ValueError(f"Code must have exactly {self.dial_count} digits.")
-		dial_values = [int(dial_val) for dial_val in str(moo_code)]
-		if max(dial_values) > self.dial_size or min(dial_values) < 1:
-			raise ValueError(f"One or more dials are out of range ({1}..{self.dial_size}).")
+		dial_values = [int(str(moo_code)[dial*self.dial_width:(dial*self.dial_width+self.dial_width)])
+			for dial in range(self.dial_count)]
+		if max(dial_values) > self.dial_max or min(dial_values) < 1:
+			raise ValueError(f"One or more dials are out of range ({1}..{self.dial_max}).")
 		return dial_values
 	
 	def set_code(self, moo_code: int):
 		try:
-			self.dwrf_key = self.validate_code(moo_code)
+			self.dwrf_key = self.parse_code(moo_code)
 			for d in self.dwrf_key:
 				self.lffs_key[d] = 1
 			self.code = moo_code
@@ -70,7 +72,7 @@ class MOO():
 	
 	def try_code(self, moo_code: int):
 		try:
-			dial_values = self.validate_code(moo_code)
+			dial_values = self.parse_code(moo_code)
 			dwrf = self.calc_dwrf(dial_values)
 			lffs = self.calc_lffs(dial_values)
 			self.tries_history.append({'TRY':moo_code, 'D/WRF':dwrf, 'LF/FS':lffs})
