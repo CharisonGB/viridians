@@ -1,7 +1,7 @@
 class MOO():
 	def __init__(self, dial_count: int, dial_size: int, max_tries: int):
 		self.dial_count = dial_count
-		self.dial_size = dial_size
+		self.dial_size = dial_size if 0 < dial_size <= 9 else 9
 		
 		self.max_tries = max_tries
 		self.tries_history = []
@@ -43,8 +43,7 @@ class MOO():
 				self.lffs_key[d] = 1
 			self.code = moo_code
 		except ValueError as ve:
-			print(f"Failed to set MOO code to {moo_code}: {ve}")
-			raise ve
+			raise ValueError(f"Failed to set MOO code to {moo_code}.\n{ve}")
 	
 	def calc_remaining_tries(self):
 		return self.max_tries - len(self.tries_history)
@@ -72,10 +71,9 @@ class MOO():
 			self.tries_history.append({'TRY':moo_code, 'D/WRF':dwrf, 'LF/FS':lffs})
 			if self.max_tries != 0 and self.calc_remaining_tries() <= 0:
 				return None
-			return dwrf == self.dial_count
+			return moo_code == self.code
 		except ValueError as ve:
-			print(f"{moo_code} is an invalid MOO code: {ve}")
-			raise ve
+			raise ValueError(f"{moo_code} is an invalid MOO code.\n{ve}")
 
 def main():
 	moo = MOO(4, 6, 8)
