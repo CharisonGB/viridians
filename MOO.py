@@ -1,3 +1,6 @@
+if __name__ == '__main__':
+	pass
+
 class MOO():
 	def __init__(self, dial_count: int, dial_size: int, max_tries: int):
 		self.dial_count = dial_count
@@ -74,13 +77,3 @@ class MOO():
 			return moo_code == self.code
 		except ValueError as ve:
 			raise ValueError(f"{moo_code} is an invalid MOO code.\n{ve}")
-
-def main():
-	moo = MOO(4, 6, 8)
-	answer = 1345
-	moo.set_code(1425)
-	moo.try_code(answer)
-	print(moo)
-	
-if __name__ == '__main__':
-	main()
