@@ -7,14 +7,13 @@ class MOO():
 	def __init__(self, dial_count: int, dial_size: int, max_tries: int):
 		self.dial_count = dial_count
 		self.dial_max = dial_size
-		self.dial_width = (dial_size // 10) + 1
+		lg = lambda b, n : 1 if n//b > 0 else 1+lg(n//b) # evil recursive lambda
+		self.dial_width = lg(10, dial_size) + 1
 		
 		self.max_tries = max_tries
 		self.tries_history = []
 		
-		self.code = 0
-		self.code_min = int(str(1)*dial_count)
-		self.code_max = int(str(dial_size)*dial_count)
+		self.code = ""
 		self.dwrf_key = [0]*dial_count
 		self.lffs_key = [0]*(dial_size + 1)
 	
@@ -34,16 +33,16 @@ class MOO():
 		moo_str = f"{self.configs_str()}{self.attempts_str()}"
 		return moo_str
 	
-	def parse_code(self, moo_code: int):
-		if self.code_max < moo_code or moo_code < self.code_min:
-			raise ValueError(f"Code must have exactly {self.dial_count} digits.")
-		dial_values = [int(str(moo_code)[dial*self.dial_width:(dial*self.dial_width+self.dial_width)])
-			for dial in range(self.dial_count)]
+	def parse_code(self, moo_code: str):
+		if len(moo_code) != self.dial_width * self.dial_count:
+			raise ValueError(f"Code must be expressed with exactly {self.dial_count}, {self.dial_width}-wide digits.")
+		dial_values = [int(moo_code[dial*self.dial_width:(dial+1)*self.dial_width])
+			for dial in range(self.dial_count)] # incomprehensible list comprehension, lmao
 		if max(dial_values) > self.dial_max or min(dial_values) < 1:
 			raise ValueError(f"One or more dials are out of range ({1}..{self.dial_max}).")
 		return dial_values
 	
-	def set_code(self, moo_code: int):
+	def set_code(self, moo_code: str):
 		try:
 			self.dwrf_key = self.parse_code(moo_code)
 			for d in self.dwrf_key:
@@ -70,7 +69,7 @@ class MOO():
 			lffs_key[dial_val] = 0
 		return lffs if lffs >= 0 else 0
 	
-	def try_code(self, moo_code: int):
+	def try_code(self, moo_code: str):
 		try:
 			dial_values = self.parse_code(moo_code)
 			dwrf = self.calc_dwrf(dial_values)
