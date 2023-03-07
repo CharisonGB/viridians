@@ -7,7 +7,7 @@ class MOO():
 	def __init__(self, dial_count: int, dial_size: int, max_tries: int):
 		self.dial_count = dial_count
 		self.dial_max = dial_size
-		lg = lambda b, n : 1 if n//b > 0 else 1+lg(n//b) # evil recursive lambda
+		lg = lambda b, n : 0 if n//b <= 0 else 1+lg(b, n//b) # evil recursive lambda
 		self.dial_width = lg(10, dial_size) + 1
 		
 		self.max_tries = max_tries
