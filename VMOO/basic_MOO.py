@@ -5,7 +5,7 @@ from VMOO import MOO
 def get_basic_MOO_parser():
 	parser = argparse.ArgumentParser(usage="basic_MOO.py <code> [-c|--dial-count] [-s|--dial-size] [-t|--max-tries]",
 		description="Configure the Basic MOO.")
-	parser.add_argument('code', action='store', type=int,
+	parser.add_argument('code', action='store', type=str,
 		help="set the correct code for this MOO; can fail against other args")
 	parser.add_argument('-c', '--dial-count', action='store', type=int, default=4,
 		help="the number of digits in the MOO code; defaults to 4")
@@ -28,7 +28,7 @@ def main():
 	code_correct = False
 	while code_correct is not None:
 		try:
-			moo_code = int(input("Enter the MOO code: "))
+			moo_code = input("Enter the MOO code: ")
 			code_correct = basic_moo.try_code(moo_code)
 			if not code_correct:
 				print("ACCESS DENIED")
